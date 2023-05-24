@@ -15,8 +15,9 @@ class Config(object):
     CSRF_ENABLED = True
     SECRET_KEY = "th15i5th3c0nf19p01nt-s3Cr3t-k3YS"
     SQLALCHEMY_DATABASE_URI = os.environ["DATABASE_URL"]
+    SQLALCHEMY_TRACK_MODIFICATIONS = os.environ["SQLALCHEMY_TRACK_MODIFICATIONS"]
     JWT_SECRET_KEY = os.environ["JWT_SECRET_KEY"]
-
+    JSON_SORT_KEYS = False
     # UPLOAD_FOLDER = os.environ["UPLOAD_FOLDER"]
     UPLOAD_FILE = os.environ["UPLOAD_FILE"]
     URL = os.environ["URL"]
