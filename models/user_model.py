@@ -10,6 +10,7 @@ class User(db.Model):
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     full_name = db.Column(db.String(255))
+    email = db.Column(db.String(225))
     nik = db.Column(db.String(16))
     password = db.Column(db.Text())
     pubkey = db.Column(db.Text())
@@ -27,6 +28,7 @@ class User(db.Model):
     def __init__(
         self,
         full_name,
+        email,
         nik,
         password,
         pubkey,
@@ -37,6 +39,7 @@ class User(db.Model):
         deleted_at,
     ):
         self.full_name = full_name
+        self.email = email
         self.nik = nik
         self.password = password
         self.pubkey = pubkey

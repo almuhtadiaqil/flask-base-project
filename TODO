@@ -1,0 +1,6 @@
+#TODO
+1. create authentication controller
+2. create role management controller
+3. create auto insert permission from routes
+4. create permission middleware
+5. create jwt middleware

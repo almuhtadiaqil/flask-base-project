@@ -1,9 +1,8 @@
-from common.base_response import BaseResponse
+from common.base_response_single import BaseResponseSingle
 from flask import jsonify
 
 
 class ErrorResponse(object):
-
     data = None
     status = False
     message = None
@@ -18,6 +17,6 @@ class ErrorResponse(object):
 
     def serialize(self):
         return (
-            jsonify(BaseResponse(None, self.message, 0, 0, 0, 400).serialize()),
+            jsonify(BaseResponseSingle(None, self.code, self.message).serialize()),
             self.code,
         )
