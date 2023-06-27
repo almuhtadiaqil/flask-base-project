@@ -12,12 +12,13 @@ class UserSchema(Schema):
         ),
     )
     pubkey = fields.String(load_only=True)
-    privkey = fields.String(load_only=True  )
+    privkey = fields.String(load_only=True)
     created_at = fields.String()
     updated_at = fields.String()
     last_login_at = fields.DateTime()
+    role = fields.String(required=True)
 
+    class Meta:
+        strict = True
 
-class Meta:
-    strict = True
     # validate.Regexp("[^a-zA-Z0-9_].")

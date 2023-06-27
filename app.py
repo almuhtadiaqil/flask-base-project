@@ -17,7 +17,7 @@ app = Flask(__name__)
 app.config.from_object(os.environ["APP_SETTINGS"])
 # app.config.from_object(os.environ{})
 
-# jwt = JWTManager(app)
+jwt = JWTManager(app)
 CORS(app)
 db.init_app(app)
 migrate = Migrate(app=app, db=db)

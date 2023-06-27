@@ -32,6 +32,15 @@ class UserRepository:
             raise Exception(error)
 
     @staticmethod
+    def get_user_by_field(field, value):
+        try:
+            user = User.query.filter(eval("{} == {}".format(field, value))).first()
+            return user
+        except Exception as e:
+            error = ErrorSchema().load({"message": str(e), "code": 500})
+            raise Exception(error)
+
+    @staticmethod
     def get_user_by_id(id):
         try:
             user = User.query.filter(User.id == id, User.deleted_at == None).first()

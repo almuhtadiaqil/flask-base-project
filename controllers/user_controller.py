@@ -16,16 +16,16 @@ user_api = Blueprint("user_api", __name__)
 
 @user_api.route("/user/pagination", methods=["GET"])
 # @jwt_required()
-@swag_from(
-    {
-        "responses": {
-            HTTPStatus.OK.value: {
-                "description": "Welcome to the Flask Starter Kit",
-                "schema": UserSchema(many=True),
-            }
-        }
-    }
-)
+# @swag_from(
+#     {
+#         "responses": {
+#             HTTPStatus.OK.value: {
+#                 "description": "Welcome to the Flask Starter Kit",
+#                 "schema": UserSchema(many=True),
+#             }
+#         }
+#     }
+# )
 def get_all_users():
     # user_auth = get_jwt_identity()
     query_params = PaginationSchema()
@@ -76,7 +76,7 @@ def create_user():
             jsonify(
                 BaseResponseSingle(
                     user_schema.dump(result), "user created successfully", 201
-                ).serialize( )
+                ).serialize()
             ),
             201,
         )
