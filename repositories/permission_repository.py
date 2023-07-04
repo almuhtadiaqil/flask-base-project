@@ -4,6 +4,7 @@ from models.role_permission_model import RolePermission
 from datetime import datetime
 from schemas.permission_schema import DeletePermissionSchema, PermissionSchema
 from schemas.error_schema import ErrorSchema
+from repositories.base_repository import BaseRepository
 
 ErrPermissionInUse = "Cannot delete assigned permission"
 ErrPermissionNotFound = "Permission not found"
@@ -11,16 +12,9 @@ ErrPermissionNotFound = "Permission not found"
 ts = datetime.utcnow()
 
 
-class PermissionRepository:
-    def GetPermissions():
-        try:
-            schema = PermissionSchema(many=True)
-            permissions = Permission.query.all()
-            result = schema.dump(permissions)
-            return result
-        except Exception as e:
-            error = ErrorSchema().load({"message": str(e), "code": 500})
-            raise Exception(error)
+class PermissionRepository(BaseRepository):
+    def __init__(self) -> None:
+        super().__init__(model=Permission)
 
     def DeletePermission(data: DeletePermissionSchema):
         try:

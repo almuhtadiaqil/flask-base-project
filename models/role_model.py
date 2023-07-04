@@ -18,3 +18,4 @@ class Role(db.Model):
         onupdate=datetime.utcnow(),
     )
     deleted_at = db.Column(db.TIMESTAMP(), nullable=True)
+    role_permission = db.relationship("RolePermission", backref="roles", lazy=True)

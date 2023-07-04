@@ -10,6 +10,11 @@ from common.base_response import BaseResponse
 from flask_jwt_extended import JWTManager, jwt_required
 from sentry_sdk.integrations.flask import FlaskIntegration
 from config import Config
+from schemas.error_schema import ErrorSchema
+from common.error_response import ErrorResponse
+from common.base_response_single import BaseResponseSingle
+from flask.cli import FlaskGroup
+
 
 db = SQLAlchemy()
 app = Flask(__name__)
@@ -22,7 +27,6 @@ CORS(app)
 db.init_app(app)
 migrate = Migrate(app=app, db=db)
 Swagger(app)
-from controllers.example import example
 
 
 # @jwt.expired_token_loader
@@ -43,21 +47,10 @@ def notfound_exception(e):
 
 @app.errorhandler(Exception)
 def handle_exception(e):
-    # if e.name:
-    #     name = e.name
-    # else:
-    #     name = "Error"
-    # if e.code:
-    #     code = e.code
-    # else:
-    #     code = 500
-    # if e.description:
-    #     description = e.description
-    # else:
-    #     description = "Error description"
-    # data = {"code": str(e), "name": str(e), "description": str(e)}
-    res = BaseResponse(None, str(e), 0, 0, 0, 401).serialize()
-    return jsonify(res), 500
+    if "code" in e.args[0]:
+        return ErrorResponse(e.args[0]["message"], e.args[0]["code"]).serialize()
+    else:
+        return ErrorResponse(exception=str(e), code=500).serialize()
 
 
 app.register_error_handler(404, notfound_exception)
@@ -71,10 +64,20 @@ def trigger_error():
 
 from controllers.example import example_api
 from controllers.user_controller import user_api
+from controllers.auth_controller import auth_api
+from controllers.role_controller import role_api
+from controllers.permission_controller import permission_api
 
 path_api = "/api/v1"
-app.register_blueprint(example_api, url_prefix=path_api)
+# app.register_blueprint(example_api, url_prefix=path_api)
 app.register_blueprint(user_api, url_prefix=path_api)
+app.register_blueprint(auth_api, url_prefix=path_api)
+app.register_blueprint(role_api, url_prefix=path_api + "/roles")
+app.register_blueprint(permission_api, url_prefix=path_api + "/permissions")
+
+from command.permission_command import permission_commands
+
+app.cli.add_command(permission_commands)
 
 
 if __name__ == "__main__":

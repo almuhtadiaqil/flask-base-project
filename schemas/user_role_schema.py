@@ -15,15 +15,15 @@ class UserRoleSchema(Schema):
 
 class AssignSingleRole(Schema):
     user_id = fields.UUID()
-    role_name = fields.Str()
+    role_name = fields.String()
 
-    class Meta:
-        strict = True
+    # class Meta:
+    #     strict = True
 
 
 class AssignBatchRole(Schema):
     user_id = fields.UUID()
-    role_names = fields.List(str)
+    role_names = fields.List(fields.String)
 
     class Meta:
         strict = True

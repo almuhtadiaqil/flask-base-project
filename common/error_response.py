@@ -17,6 +17,6 @@ class ErrorResponse(object):
 
     def serialize(self):
         return (
-            jsonify(BaseResponseSingle(None, self.code, self.message).serialize()),
+            jsonify(BaseResponseSingle(None, self.message, self.code).serialize()),
             self.code,
         )

@@ -10,12 +10,13 @@ from common.base_response_single import BaseResponseSingle
 from common.error_response import ErrorResponse
 from repositories.user_repository import UserRepository
 from flask_jwt_extended import *
+from middlewares.permission_middleware import permission_required
 
 user_api = Blueprint("user_api", __name__)
 
 
 @user_api.route("/user/pagination", methods=["GET"])
-# @jwt_required()
+@permission_required("User@get_all_users")
 # @swag_from(
 #     {
 #         "responses": {
@@ -56,7 +57,7 @@ def get_all_users():
 
 
 @user_api.route("/user", methods=["POST"])
-# @jwt_required()
+@permission_required("User@create_user")
 @swag_from(
     {
         "responses": {

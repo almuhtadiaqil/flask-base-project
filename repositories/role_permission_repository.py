@@ -21,17 +21,17 @@ ErrUserRoleNotFound = "User role not found"
 
 
 class RolePermissionRepository(db.Model):
-    __tablename__ = "role_permission"
+    __tablename__ = "role_permissions"
 
     def assignOnePermission(data: AssignOnePermissionSchema):
         try:
-            role_name = data.role_name.lower()
+            role_name = data["role_name"].lower()
             role = Role.query.filter(Role.name.ilike(role_name)).first()
             if role is None:
                 error = ErrorSchema().load({"message": ErrRoleNotFound, "code": 400})
                 raise Exception(error)
             permission = Permission.query.filter(
-                Permission.id == data.permission_id
+                Permission.id == data.permission_id, Permission
             ).first()
             if permission is None:
                 error = ErrorSchema().load(
@@ -50,22 +50,40 @@ class RolePermissionRepository(db.Model):
 
     def AssignPermission(data: AssignPermissionsSchema):
         try:
-            role_name = data.role_name.lower()
+            role_name = data["role_name"].lower()
             role = Role.query.filter(Role.name.ilike(role_name)).first()
             if role is None:
                 error = ErrorSchema().load({"message": ErrRoleNotFound, "code": 400})
                 raise Exception(error)
             # perms = []
-            for perm_id in data.permission_ids:
+            for perm_id in data["permission_ids"]:
                 permission = Permission.query.filter(Permission.id == perm_id).first()
                 if permission is None:
                     error = ErrorSchema().load(
                         {"message": ErrPermissionNotFound, "code": 400}
                     )
                     raise Exception(error)
-                role_perm = RolePermission(role_id=role.id, permission_id=perm_id)
-                db.session.add(role_perm)
-                db.session.commit()
+
+            exist_perm_ids = (
+                RolePermission.query.filter(RolePermission.role_id == role.id)
+                .with_entities(RolePermission.permission_id)
+                .all()
+            )
+
+            exist_perm_ids = [permission_id for (permission_id,) in exist_perm_ids]
+
+            missing_ids = list(set(data["permission_ids"]) - set(exist_perm_ids))
+            extra_ids = list(set(exist_perm_ids) - set(data["permission_ids"]))
+
+            for missing_id in missing_ids:
+                new_perm = RolePermission(role_id=role.id, permission_id=missing_id)
+                db.session.add(new_perm)
+            if extra_ids:
+                delete_statement = RolePermission.__table__.delete().where(
+                    RolePermission.permission_id.in_(extra_ids)
+                )
+                db.session.execute(delete_statement)
+            db.session.commit()
         except Exception as e:
             db.session.rollback()
             error = ErrorSchema().load({"message": str(e), "code": 500})
@@ -73,15 +91,17 @@ class RolePermissionRepository(db.Model):
 
     def CheckPermission(data: CheckOrRevokePermissionSchema):
         try:
-            user_role = UserRole.query.filter(UserRole.user_id == data.user_id).first()
+            user_role = UserRole.query.filter(
+                UserRole.user_id == data["user_id"]
+            ).first()
             if user_role is None:
                 error = ErrorSchema().load(
                     {"message": ErrUserRoleNotFound, "code": 500}
                 )
                 raise Exception(error)
-            perm_name = data.perm_name.lower()
+            perm_name = data["perm_name"].lower()
             permission = Permission.query.filter(
-                Permission.name.ilike(perm_name)
+                Permission.slug.ilike(perm_name), Permission.module == data["module"]
             ).first()
             if permission is None:
                 error = ErrorSchema().load(
@@ -107,7 +127,7 @@ class RolePermissionRepository(db.Model):
                     {"message": ErrUserRoleNotFound, "code": 500}
                 )
                 raise Exception(error)
-            perm_name = data.perm_name.lower()
+            perm_name = data["perm_name"].lower()
             permission = Permission.query.filter(
                 Permission.name.ilike(perm_name)
             ).first()

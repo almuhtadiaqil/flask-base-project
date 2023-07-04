@@ -6,11 +6,21 @@ from schemas.role_schema import RoleSchema
 from sqlalchemy.sql import text
 from schemas.error_schema import ErrorSchema
 from datetime import datetime
+from repositories.role_permission_repository import RolePermissionRepository
+from schemas.role_permission_schema import AssignPermissionsSchema
 
 ts = datetime.utcnow()
 
 
 class RoleRepository:
+    def get_all():
+        try:
+            records = Role.query.all()
+            return records
+        except Exception as e:
+            error = ErrorSchema().load({"message": str(e), "code": 500})
+            raise Exception(error)
+
     @staticmethod
     def get_all_roles(request: PaginationSchema):
         try:
@@ -50,6 +60,13 @@ class RoleRepository:
             )
             db.session.add(role)
             db.session.commit()
+            assign_permission_schema = AssignPermissionsSchema().load(
+                {
+                    "role_name": role.name,
+                    "permission_ids": role_schema["permission_ids"],
+                }
+            )
+            RolePermissionRepository.AssignPermission(assign_permission_schema)
             return role
         except Exception as e:
             db.session.rollback()
@@ -57,13 +74,19 @@ class RoleRepository:
             raise Exception(error)
 
     @staticmethod
-    def update_role(role_schema: RoleSchema):
+    def update_role(id, role_schema: RoleSchema):
         try:
-            role = Role(
-                name=role_schema["name"],
-                slug=role_schema["name"].lower().replace(" ", "-"),
-            )
+            role = Role.query.filter(Role.id == id).first()
+            role.name = role_schema["name"]
+            role.slug = role_schema["name"].lower().replace(" ", "-")
             db.session.commit()
+            assign_permission_schema = AssignPermissionsSchema().load(
+                {
+                    "role_name": role.name,
+                    "permission_ids": role_schema["permission_ids"],
+                }
+            )
+            RolePermissionRepository.AssignPermission(assign_permission_schema)
             return role
         except Exception as e:
             error = ErrorSchema().load({"message": str(e), "code": 500})

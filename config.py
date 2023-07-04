@@ -3,6 +3,7 @@
 from os import environ, path
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 
 basedir = path.abspath(path.dirname(__file__))
 
@@ -17,7 +18,9 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = os.environ["DATABASE_URL"]
     SQLALCHEMY_TRACK_MODIFICATIONS = os.environ["SQLALCHEMY_TRACK_MODIFICATIONS"]
     JWT_SECRET_KEY = os.environ["JWT_SECRET_KEY"]
-    JWT_ACCESS_TOKEN_EXPIRES = os.environ["JWT_ACCESS_TOKEN_EXPIRES"]
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(
+        hours=int(os.environ["JWT_ACCESS_TOKEN_EXPIRES"])
+    )
     JSON_SORT_KEYS = False
     # UPLOAD_FOLDER = os.environ["UPLOAD_FOLDER"]
     UPLOAD_FILE = os.environ["UPLOAD_FILE"]

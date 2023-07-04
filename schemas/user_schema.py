@@ -2,8 +2,10 @@ from marshmallow import Schema, fields, validate
 
 
 class UserSchema(Schema):
+    id = fields.UUID(dump_only=True)
     full_name = fields.String(required=True)
-    nik = fields.String(required=True, validate=validate.Length(min=16, max=16))
+    nik = fields.String(required=True, validate=[validate.Length(min=16, max=16)])
+    email = fields.String(required=True, validate=[validate.Email])
     password = (
         fields.String(
             required=True,

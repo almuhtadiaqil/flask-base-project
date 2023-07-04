@@ -1,5 +1,5 @@
 from marshmallow import Schema, fields, validate
-from schema.PermissionSchema import PermissionSchema
+from schemas.permission_schema import PermissionSchema
 
 
 class RolePermissionSchema(Schema):
@@ -28,3 +28,4 @@ class AssignPermissionsSchema(Schema):
 class CheckOrRevokePermissionSchema(Schema):
     user_id = fields.UUID(required=True)
     perm_name = fields.String(required=True)
+    module = fields.String(required=True)

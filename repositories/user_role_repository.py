@@ -21,17 +21,17 @@ ErrUserAlreadyAssigned = "This user is already have role"
 class UserRoleRepository:
     def assign_single_role(data: AssignSingleRole):
         try:
-            role_name = data.role_name.lower()
+            role_name = data["role_name"].lower()
             role = Role.query.filter(
                 func.lower(Role.name) == role_name, Role.deleted_at == None
             ).first()
             if role == None:
-                role = Role(name=data.role_name, slug=role_name.replace(" ", "-"))
+                role = Role(name=data["role_name"], slug=role_name.replace(" ", "-"))
                 db.session.add(role)
                 db.session.commit()
 
             user_role = UserRole.query.filter(
-                UserRole.user_id == data.user_id, UserRole.deleted_at == None
+                UserRole.user_id == data["user_id"], UserRole.deleted_at == None
             ).first()
             if user_role is not None:
                 error = ErrorSchema().load(
@@ -39,7 +39,7 @@ class UserRoleRepository:
                 )
                 raise Exception(error)
 
-            user_role = UserRole(user_id=data.user_id, role_id=role.id)
+            user_role = UserRole(user_id=data["user_id"], role_id=role.id)
             db.session.add(user_role)
             db.session.commit()
             return user_role
@@ -49,7 +49,7 @@ class UserRoleRepository:
 
     def check_assigned_role(data: AssignSingleRole):
         try:
-            role_name = data.role_name.lower()
+            role_name = data["role_name"].lower()
             role = Role.query.filter(
                 Role.name.ilike(role_name), Role.deleted_at == None
             ).first()
@@ -57,7 +57,7 @@ class UserRoleRepository:
                 error = ErrorSchema().load({"message": ErrRoleNotFound, "code": 500})
                 raise Exception(error)
             user_role = UserRole.query.filter(
-                UserRole.user_id == data.user_id, UserRole.role_id == role.id
+                UserRole.user_id == data["user_id"], UserRole.role_id == role.id
             ).first()
             if user_role == None:
                 False
@@ -68,14 +68,14 @@ class UserRoleRepository:
 
     def RevokeRole(data: AssignSingleRole):
         try:
-            role_name = data.role_name.lower()
+            role_name = data["role_name"].lower()
             role = Role.query.filter(
                 Role.name.ilike(role_name), Role.deleted_at == None
             ).first()
             if role == None:
                 error = ErrorSchema().load({"message": ErrRoleNotFound, "code": 500})
                 raise Exception(error)
-            UserRole.query.filter(UserRole.user_id == data.user_id).delete()
+            UserRole.query.filter(UserRole.user_id == data["user_id"]).delete()
             db.session.commit()
             return None
         except Exception as e:

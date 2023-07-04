@@ -14,5 +14,14 @@ class PermissionSchema(Schema):
         strict = True
 
 
+class PermissionListSchema(Schema):
+    module = fields.String()
+    permissions = fields.Nested(PermissionSchema, many=True)
+
+
+class PermissionIdSchema(Schema):
+    id = fields.UUID()
+
+
 class DeletePermissionSchema(Schema):
     permission_name = fields.String()

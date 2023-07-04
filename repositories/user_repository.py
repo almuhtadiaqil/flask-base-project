@@ -34,7 +34,7 @@ class UserRepository:
     @staticmethod
     def get_user_by_field(field, value):
         try:
-            user = User.query.filter(eval("{} == {}".format(field, value))).first()
+            user = User.query.filter(text("{} = '{}'".format(field, value))).first()
             return user
         except Exception as e:
             error = ErrorSchema().load({"message": str(e), "code": 500})
@@ -56,8 +56,8 @@ class UserRepository:
                 full_name=user_schema["full_name"],
                 nik=user_schema["nik"],
                 password=user_schema["password"],
+                email=user_schema["email"],
                 last_login_at=None,
-                created_at=None,
                 privkey=None,
                 pubkey=None,
             )
@@ -73,12 +73,23 @@ class UserRepository:
             raise Exception(error)
 
     @staticmethod
-    def update_role(user_schema: UserSchema):
+    def update_user(user_schema: UserSchema):
         try:
-            role = User(full_name=user_schema["full_name"], nik=user_schema["nik"])
+            user = User(full_name=user_schema["full_name"], nik=user_schema["nik"])
             db.session.commit()
-            return role
+            return user
         except Exception as e:
+            error = ErrorSchema().load({"message": str(e), "code": 500})
+            raise Exception(error)
+
+    @staticmethod
+    def update_specific_field(id, field, value):
+        try:
+            user = User.query.filter(User.id == id, User.deleted_at == None).first()
+            setattr(user, field, value)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
             error = ErrorSchema().load({"message": str(e), "code": 500})
             raise Exception(error)
 
