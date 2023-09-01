@@ -62,14 +62,12 @@ def trigger_error():
     division_by_zero = 1 / 0
 
 
-from controllers.example import example_api
 from controllers.user_controller import user_api
 from controllers.auth_controller import auth_api
 from controllers.role_controller import role_api
 from controllers.permission_controller import permission_api
 
 path_api = "/api/v1"
-# app.register_blueprint(example_api, url_prefix=path_api)
 app.register_blueprint(user_api, url_prefix=path_api)
 app.register_blueprint(auth_api, url_prefix=path_api)
 app.register_blueprint(role_api, url_prefix=path_api + "/roles")
