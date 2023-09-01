@@ -53,8 +53,12 @@ class RolePermissionRepository(db.Model):
             role_name = data["role_name"].lower()
             role = Role.query.filter(Role.name.ilike(role_name)).first()
             if role is None:
-                error = ErrorSchema().load({"message": ErrRoleNotFound, "code": 400})
-                raise Exception(error)
+                role = Role(
+                    name=data["role_name"].lower(),
+                    slug=data['role_name'].lower().replace(" ", "-")
+                )
+                db.session.add(role)
+                db.session.commit()
             # perms = []
             for perm_id in data["permission_ids"]:
                 permission = Permission.query.filter(Permission.id == perm_id).first()
